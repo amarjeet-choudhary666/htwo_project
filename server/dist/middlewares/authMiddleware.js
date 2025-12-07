@@ -43,7 +43,13 @@ const authenticateAdmin = async (req, res, next) => {
 exports.authenticateAdmin = authenticateAdmin;
 const authenticateUser = async (req, res, next) => {
     try {
-        const token = req.cookies.accessToken;
+        let token = req.cookies.accessToken;
+        if (!token) {
+            const authHeader = req.headers.authorization;
+            if (authHeader && authHeader.startsWith('Bearer ')) {
+                token = authHeader.substring(7);
+            }
+        }
         if (!token) {
             throw new apiError_1.ApiError(401, 'Access token not found. Please login first.');
         }
@@ -57,8 +63,8 @@ const authenticateUser = async (req, res, next) => {
         if (!user) {
             throw new apiError_1.ApiError(401, 'User not found');
         }
-        if (user.role !== 'USER') {
-            throw new apiError_1.ApiError(403, 'Access denied. User account required.');
+        if (user.role !== 'USER' && user.role !== 'PARTNER') {
+            throw new apiError_1.ApiError(403, 'Access denied. User or Partner account required.');
         }
         req.user = user;
         next();
@@ -108,7 +114,13 @@ const authenticateAdminPage = async (req, res, next) => {
 exports.authenticateAdminPage = authenticateAdminPage;
 const authMiddleware = async (req, res, next) => {
     try {
-        const token = req.cookies.accessToken;
+        let token = req.cookies.accessToken;
+        if (!token) {
+            const authHeader = req.headers.authorization;
+            if (authHeader && authHeader.startsWith('Bearer ')) {
+                token = authHeader.substring(7);
+            }
+        }
         if (!token) {
             throw new apiError_1.ApiError(401, 'Access token not found. Please login first.');
         }

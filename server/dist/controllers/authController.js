@@ -320,8 +320,20 @@ exports.verifyAdmin = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
         });
     }
 });
-exports.logoutAdmin = (0, asyncHandler_1.asyncHandler)(async (_req, res) => {
+exports.logoutAdmin = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     try {
+        const userId = req.userId;
+        if (userId) {
+            try {
+                await prisma_1.default.user.update({
+                    where: { id: parseInt(userId) },
+                    data: { refreshToken: null }
+                });
+            }
+            catch (dbError) {
+                console.error('Error clearing refresh token from database:', dbError);
+            }
+        }
         res.clearCookie('accessToken', {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
@@ -502,15 +514,25 @@ exports.logout = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
         try {
             await prisma_1.default.user.update({
                 where: { id: parseInt(userId) },
-                data: { refreshToken: undefined }
+                data: { refreshToken: null }
             });
         }
         catch (error) {
             console.error('Error clearing refresh token:', error);
         }
     }
-    res.clearCookie('accessToken');
-    res.clearCookie('refreshToken');
+    res.clearCookie('accessToken', {
+        httpOnly: false,
+        secure: false,
+        sameSite: 'lax',
+        path: '/'
+    });
+    res.clearCookie('refreshToken', {
+        httpOnly: true,
+        secure: false,
+        sameSite: 'lax',
+        path: '/'
+    });
     res.json({
         success: true,
         statusCode: 200,

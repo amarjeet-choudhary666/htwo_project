@@ -7,7 +7,8 @@ import {
   Menu,
   X,
   Briefcase,
-  FileText
+  FileText,
+  Users
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
@@ -22,6 +23,7 @@ export default function PartnerLayout({ children }: PartnerLayoutProps) {
 
   const navigation = [
     { name: 'Dashboard', href: '/partner/dashboard', icon: LayoutDashboard },
+    { name: 'My Clients', href: '/partner/users', icon: Users },
     { name: 'Service Request', href: '/partner/service-request', icon: FileText },
     { name: 'My Requests', href: '/partner/service-requests', icon: FileText },
     { name: 'Profile', href: '/partner/profile', icon: UserCircle },

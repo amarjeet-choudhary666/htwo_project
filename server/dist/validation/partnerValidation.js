@@ -5,6 +5,7 @@ const zod_1 = require("zod");
 exports.createPartnerSchema = zod_1.z.object({
     companyName: zod_1.z.string().min(1, 'Company name is required'),
     companyAddress: zod_1.z.string().min(1, 'Company address is required'),
+    gstNumber: zod_1.z.string().optional(),
     businessType: zod_1.z.enum(['RESELLER', 'IT_CONSULTANT', 'HOSTING_PROVIDER', 'OTHER']),
     otherBusinessType: zod_1.z.string().optional(),
     fullName: zod_1.z.string().min(1, 'Full name is required'),

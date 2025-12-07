@@ -19,6 +19,8 @@ const adminPartnerControllerRoutes_1 = __importDefault(require("./routes/admin/a
 const formSubmissionRoutes_1 = __importDefault(require("./routes/formSubmissionRoutes"));
 const purchaseRoutes_1 = __importDefault(require("./routes/purchaseRoutes"));
 const serviceRequestRoutes_1 = __importDefault(require("./routes/serviceRequestRoutes"));
+const partnerServiceRequestRoutes_1 = __importDefault(require("./routes/partnerServiceRequestRoutes"));
+const partnerUserRoutes_1 = __importDefault(require("./routes/partnerUserRoutes"));
 const testRoutes_1 = __importDefault(require("./routes/testRoutes"));
 const profileRoutes_1 = __importDefault(require("./routes/profileRoutes"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
@@ -59,6 +61,8 @@ app.use("/api/v1/admin/partners", adminPartnerControllerRoutes_1.default);
 app.use("/api/v1/forms", formSubmissionRoutes_1.default);
 app.use("/api/v1/purchases", purchaseRoutes_1.default);
 app.use("/api/v1/service-requests", serviceRequestRoutes_1.default);
+app.use("/api/v1/partner/service-requests", partnerServiceRequestRoutes_1.default);
+app.use("/api/v1/partner/users", partnerUserRoutes_1.default);
 app.use("/api/v1/test", testRoutes_1.default);
 app.post("/api/v1/send-email", async (req, res) => {
     try {

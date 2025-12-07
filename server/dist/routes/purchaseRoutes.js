@@ -6,5 +6,4 @@ const authMiddleware_1 = require("../middlewares/authMiddleware");
 const router = (0, express_1.Router)();
 router.post('/', authMiddleware_1.authenticateUser, purchaseController_1.createPurchase);
 router.get('/', authMiddleware_1.authenticateUser, purchaseController_1.getUserPurchases);
-router.get('/:purchaseId/invoice', authMiddleware_1.authenticateUser, purchaseController_1.downloadInvoice);
 exports.default = router;

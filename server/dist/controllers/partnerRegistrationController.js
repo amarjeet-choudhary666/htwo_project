@@ -35,6 +35,7 @@ exports.registerPartner = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
         update: {
             companyName: validatedData.companyName,
             companyAddress: validatedData.companyAddress,
+            gstNumber: validatedData.gstNumber,
             businessType: validatedData.businessType,
             otherBusinessType: validatedData.otherBusinessType,
             fullName: validatedData.fullName,
@@ -48,6 +49,7 @@ exports.registerPartner = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
         create: {
             companyName: validatedData.companyName,
             companyAddress: validatedData.companyAddress,
+            gstNumber: validatedData.gstNumber,
             businessType: validatedData.businessType,
             otherBusinessType: validatedData.otherBusinessType,
             fullName: validatedData.fullName,

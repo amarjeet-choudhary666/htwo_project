@@ -10,7 +10,8 @@ exports.createUserSchema = zod_1.z.object({
     address: zod_1.z.string().optional(),
     companyName: zod_1.z.string().optional(),
     gstNumber: zod_1.z.string().optional(),
-    role: RoleEnum.default('USER')
+    role: RoleEnum.default('USER'),
+    partnerEmail: zod_1.z.string().email('Invalid partner email format').optional()
 });
 exports.updateUserSchema = zod_1.z.object({
     firstname: zod_1.z.string().optional(),

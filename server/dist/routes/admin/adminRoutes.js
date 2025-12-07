@@ -22,6 +22,8 @@ router.post('/register', authController_1.SignupAdmin);
 router.post('/login', authController_1.SigninAdmin);
 router.use(authMiddleware_1.authenticateAdmin);
 router.get('/users', adminUserController_1.adminUserController.getUsers);
+router.get('/export/users', adminUserController_1.adminUserController.exportUsers);
+router.post('/users/by-partner-reference', adminUserController_1.adminUserController.createUserByPartnerReference);
 router.post('/users', adminUserController_1.adminUserController.createUser);
 router.get('/users/:id', adminUserController_1.adminUserController.getUserDetails);
 router.put('/users/:id', adminUserController_1.adminUserController.updateUser);

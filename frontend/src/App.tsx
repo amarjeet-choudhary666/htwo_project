@@ -29,6 +29,7 @@ import PartnerDashboard from './pages/partner/Dashboard'
 import PartnerProfile from './pages/partner/Profile'
 import PartnerServiceRequest from './pages/partner/ServiceRequest'
 import PartnerServiceRequests from './pages/partner/ServiceRequests'
+import PartnerUsers from './pages/partner/Users'
 import PublicLayout from './components/PublicLayout'
 import Login from './pages/auth/Login'
 import Register from './pages/auth/Register'
@@ -151,6 +152,22 @@ function App() {
               isAuthenticated ? (
                 user?.role === 'PARTNER' ? (
                   <PartnerLayout><PartnerServiceRequests /></PartnerLayout>
+                ) : (
+                  <Navigate to="/" replace />
+                )
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
+
+          {/* Partner Users Route */}
+          <Route
+            path="/partner/users"
+            element={
+              isAuthenticated ? (
+                user?.role === 'PARTNER' ? (
+                  <PartnerLayout><PartnerUsers /></PartnerLayout>
                 ) : (
                   <Navigate to="/" replace />
                 )

@@ -5,7 +5,6 @@ const prisma_1 = require("../../lib/prisma");
 const apiResponse_1 = require("../../utils/apiResponse");
 const apiError_1 = require("../../utils/apiError");
 const asyncHandler_1 = require("../../utils/asyncHandler");
-const generateInvoice_1 = require("../../utils/generateInvoice");
 exports.getAllPurchases = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
@@ -149,18 +148,5 @@ exports.createPurchase = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
             }
         }
     });
-    try {
-        const invoicePath = await (0, generateInvoice_1.generateInvoice)(purchase);
-        if (invoicePath) {
-            await prisma_1.prisma.purchase.update({
-                where: { id: purchase.id },
-                data: { invoicePdf: invoicePath }
-            });
-            purchase.invoicePdf = invoicePath;
-        }
-    }
-    catch (error) {
-        console.error('Error generating invoice:', error);
-    }
     res.status(201).json(new apiResponse_1.ApiResponse(201, purchase, 'Purchase created successfully'));
 });

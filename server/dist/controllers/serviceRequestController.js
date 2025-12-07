@@ -6,9 +6,9 @@ const apiResponse_1 = require("../utils/apiResponse");
 const apiError_1 = require("../utils/apiError");
 const asyncHandler_1 = require("../utils/asyncHandler");
 exports.createServiceRequest = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
-    const { fullName, email, phone, companyName, gstNumber, address, vpsPlan, serverLocation, billingCycle, additionalNotes } = req.body;
-    if (!fullName || !email || !phone || !vpsPlan) {
-        throw new apiError_1.ApiError(400, 'Full name, email, phone, and VPS plan are required');
+    const { fullName, email, phone, companyName, gstNumber, address, serviceType, servicePlan, serverLocation, billingCycle, additionalNotes } = req.body;
+    if (!fullName || !email || !phone || !servicePlan) {
+        throw new apiError_1.ApiError(400, 'Full name, email, phone, and service plan are required');
     }
     const serviceRequest = await prisma_1.prisma.serviceRequest.create({
         data: {
@@ -18,7 +18,8 @@ exports.createServiceRequest = (0, asyncHandler_1.asyncHandler)(async (req, res)
             companyName,
             gstNumber,
             address,
-            vpsPlan,
+            serviceType: serviceType || 'CLOUD',
+            servicePlan,
             serverLocation: serverLocation || 'India',
             billingCycle: billingCycle || 'MONTHLY',
             additionalNotes,

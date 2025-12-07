@@ -17,18 +17,49 @@ const Users = () => {
   const [partnerEmail, setPartnerEmail] = useState('');
 
   useEffect(() => {
-    fetchUsers();
+    // Debounce search to avoid too many API calls
+    const timeoutId = setTimeout(() => {
+      fetchUsers();
+    }, searchTerm ? 300 : 0); // 300ms delay for search, immediate for initial load
+
+    return () => clearTimeout(timeoutId);
   }, [searchTerm]);
 
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const response = await userAPI.getAll({ search: searchTerm });
+      // Fetch all users by setting a high limit
+      const response = await userAPI.getAll({ 
+        search: searchTerm,
+        limit: 10000, // High limit to get all users
+        page: 1
+      });
+      console.log('Users API response:', response);
+      
       if (response.success && response.data) {
-        // API returns { success, data: { users, pagination, total } }
-        setUsers(Array.isArray(response.data.users) ? response.data.users : []);
-        setTotalUsers(response.data.total || 0);
+        let usersArray: User[] = [];
+        let totalCount = 0;
+
+        // Handle different response structures
+        if (Array.isArray(response.data)) {
+          // Response structure: { success: true, data: [users array] }
+          usersArray = response.data;
+          totalCount = usersArray.length;
+        } else if (Array.isArray(response.data.users)) {
+          // Response structure: { success: true, data: { users: [array], total: number } }
+          usersArray = response.data.users;
+          totalCount = response.data.total || usersArray.length;
+        } else {
+          // Fallback: try to extract users from any structure
+          usersArray = [];
+          totalCount = 0;
+        }
+
+        setUsers(usersArray);
+        setTotalUsers(totalCount);
+        console.log(`Loaded ${usersArray.length} users out of ${totalCount} total`);
       } else {
+        console.error('API response error:', response);
         setUsers([]);
         setTotalUsers(0);
       }

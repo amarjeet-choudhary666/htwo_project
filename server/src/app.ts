@@ -15,6 +15,7 @@ import formSubmissionRoutes from "./routes/formSubmissionRoutes";
 import purchaseRoutes from "./routes/purchaseRoutes";
 import serviceRequestRoutes from "./routes/serviceRequestRoutes";
 import partnerServiceRequestRoutes from "./routes/partnerServiceRequestRoutes";
+import partnerUserRoutes from "./routes/partnerUserRoutes";
 import testRoutes from "./routes/testRoutes";
 import profileRoutes from "./routes/profileRoutes";
 import cookieParser from "cookie-parser";
@@ -72,6 +73,8 @@ app.use("/api/v1/forms", formSubmissionRoutes);
 app.use("/api/v1/purchases", purchaseRoutes);
 app.use("/api/v1/service-requests", serviceRequestRoutes);
 app.use("/api/v1/partner/service-requests", partnerServiceRequestRoutes);
+app.use("/api/v1/partner/users", partnerUserRoutes);
+console.log("✅ Partner users route registered at /api/v1/partner/users");
 app.use("/api/v1/test", testRoutes); // Test routes for development
 
 // Email route

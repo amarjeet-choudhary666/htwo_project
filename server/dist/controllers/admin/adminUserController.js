@@ -39,6 +39,7 @@ exports.adminUserController = {
                         address: true,
                         companyName: true,
                         gstNumber: true,
+                        partnerId: true,
                         createdAt: true,
                         updatedAt: true,
                         _count: {
@@ -77,6 +78,13 @@ exports.adminUserController = {
                     formSubmissions: {
                         orderBy: { createdAt: 'desc' },
                         take: 10
+                    },
+                    partner: {
+                        select: {
+                            id: true,
+                            companyName: true,
+                            email: true
+                        }
                     }
                 }
             });
@@ -120,7 +128,7 @@ exports.adminUserController = {
     },
     async createUser(req, res) {
         try {
-            const { email, password, firstname, address, companyName, gstNumber, role } = req.body;
+            const { email, password, firstname, address, companyName, gstNumber, role, partnerEmail } = req.body;
             if (!email || !password) {
                 return res.status(400).json({
                     success: false,
@@ -136,6 +144,22 @@ exports.adminUserController = {
                     message: 'User with this email already exists'
                 });
             }
+            let partnerId;
+            if (partnerEmail) {
+                const partnerUser = await prisma_1.prisma.user.findFirst({
+                    where: {
+                        email: partnerEmail,
+                        role: 'PARTNER'
+                    }
+                });
+                if (!partnerUser) {
+                    return res.status(400).json({
+                        success: false,
+                        message: 'Partner does not exist with this email. Please ensure the email belongs to a user with PARTNER role.'
+                    });
+                }
+                partnerId = partnerUser.id;
+            }
             const hashedPassword = await bcrypt_1.default.hash(password, 10);
             const user = await prisma_1.prisma.user.create({
                 data: {
@@ -145,7 +169,8 @@ exports.adminUserController = {
                     address,
                     companyName,
                     gstNumber,
-                    role: role || 'USER'
+                    role: role || 'USER',
+                    partnerId
                 },
                 select: {
                     id: true,
@@ -155,6 +180,7 @@ exports.adminUserController = {
                     address: true,
                     companyName: true,
                     gstNumber: true,
+                    partnerId: true,
                     createdAt: true,
                     updatedAt: true
                 }
@@ -189,6 +215,66 @@ exports.adminUserController = {
         catch (error) {
             console.error('Export users error:', error);
             res.status(500).json({ error: 'Error exporting users' });
+        }
+    },
+    async createUserByPartnerReference(req, res) {
+        try {
+            const { email, password, firstname, address, companyName, gstNumber, role, partnerEmail } = req.body;
+            if (!email || !password || !firstname || !address || !companyName || !gstNumber || !partnerEmail) {
+                return res.status(400).json({ success: false, message: 'All fields are required' });
+            }
+            const existingUser = await prisma_1.prisma.user.findUnique({
+                where: { email }
+            });
+            if (existingUser) {
+                return res.status(409).json({
+                    success: false,
+                    message: 'User with this email already exists'
+                });
+            }
+            const partner = await prisma_1.prisma.user.findFirst({
+                where: {
+                    email: partnerEmail,
+                    role: 'PARTNER'
+                }
+            });
+            if (!partner) {
+                return res.status(404).json({ success: false, message: 'Partner not found' });
+            }
+            const hashedPassword = await bcrypt_1.default.hash(password, 10);
+            const user = await prisma_1.prisma.user.create({
+                data: {
+                    email,
+                    password: hashedPassword,
+                    firstname,
+                    address,
+                    companyName,
+                    gstNumber,
+                    role: role || 'USER',
+                    partnerId: partner.id
+                },
+                select: {
+                    id: true,
+                    email: true,
+                    firstname: true,
+                    role: true,
+                    address: true,
+                    companyName: true,
+                    gstNumber: true,
+                    partnerId: true,
+                    createdAt: true,
+                    updatedAt: true
+                }
+            });
+            res.status(201).json({
+                success: true,
+                message: 'User created successfully',
+                data: user
+            });
+        }
+        catch (error) {
+            console.error('Create user by partner reference error:', error);
+            res.status(500).json({ success: false, message: 'Error creating user' });
         }
     }
 };

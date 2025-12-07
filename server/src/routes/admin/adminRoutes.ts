@@ -45,6 +45,7 @@ router.use(authMiddleware);
 
 // Users Management
 router.get('/users', adminUserController.getUsers);
+router.get('/export/users', adminUserController.exportUsers); // Export users to CSV
 router.post('/users/by-partner-reference', adminUserController.createUserByPartnerReference); // Specific route must come before parameterized routes
 router.post('/users', adminUserController.createUser);
 router.get('/users/:id', adminUserController.getUserDetails);
