@@ -1,0 +1,360 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ServerOS {
+  LINUX
+  WINDOWS
+}
+
+enum Chip {
+  INTEL
+  AMD
+}
+
+enum Availability {
+  HIGH_AVAILABILITY
+  NON_HIGH_AVAILABILITY
+}
+
+enum Role {
+  ADMIN
+  USER
+  PARTNER
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum ServerType {
+  DEDICATED
+  VPS
+}
+
+enum Chipset {
+  AMD
+  INTEL
+}
+
+enum BusinessType {
+  RESELLER
+  IT_CONSULTANT
+  HOSTING_PROVIDER
+  OTHER
+}
+
+enum EstimatedMonthlySales {
+  LESS_THAN_10
+  BETWEEN_10_50
+  BETWEEN_51_200
+  MORE_THAN_200
+}
+
+model User {
+   id       Int    @id @default(autoincrement())
+   email    String @unique
+   password String
+
+   firstname String? // Optional first name
+   // lastname  String? // Uncomment if needed
+
+   role         Role    @default(USER)
+   refreshToken String?
+
+   address     String? // Optional address
+   companyName String? // Optional company name
+   gstNumber   String? // Optional GST number
+
+   partnerId Int?
+   partner   User? @relation("UserPartner", fields: [partnerId], references: [id], onDelete: SetNull)
+   clients   User[] @relation("UserPartner")
+
+   otp         String?
+   otpExpires  DateTime?
+
+   resetPasswordToken   String?
+   resetPasswordExpires DateTime?
+
+   createdAt DateTime @default(now())
+   updatedAt DateTime @updatedAt
+
+   services        Service[]
+   userServices    UserService[]
+   formSubmissions FormSubmission[]
+   purchases       Purchase[]
+}
+
+model Service {
+  id           Int       @id @default(autoincrement())
+  name         String
+  categoryId   Int?
+  categoryTypeId Int?
+  description  String?
+  monthlyPrice Float?
+  yearlyPrice  Float?
+  imageUrl     String?
+  features     String[] // Array of strings for features
+  status       String   @default("active")
+  priority     Priority @default(LOW)
+
+  ram      String @default("")
+  storage  String @default("")
+
+  ownerId  Int
+  owner    User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  category     Category?     @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  categoryType CategoryType? @relation(fields: [categoryTypeId], references: [id], onDelete: SetNull)
+
+  userServices UserService[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+
+model PartnerRegistrationForm {
+   id                    Int                   @id @default(autoincrement())
+
+   // Company Information
+   companyName           String
+   companyAddress        String
+   gstNumber             String?
+   businessType          BusinessType
+   otherBusinessType     String?               // For "Other" business type
+
+   // Contact Information
+   fullName              String
+   email                 String                @unique
+   phone                 String
+   countryRegion         String
+
+   // Estimated Monthly Sales / Leads
+   estimatedMonthlySales EstimatedMonthlySales
+
+   // Technical Support
+   hasTechnicalSupport   Boolean
+
+   // Optional Reason
+   partnershipReason     String?
+
+   // Status
+   status                String                @default("pending") // pending, approved, rejected
+
+   // OTP for email verification
+   otp                   String?
+   otpExpires            DateTime?
+
+   createdAt             DateTime              @default(now())
+   updatedAt             DateTime              @updatedAt
+
+   @@index([email])
+   @@index([status])
+   @@index([createdAt])
+}
+
+model FormSubmission {
+  id      String @id @default(cuid())
+  name    String
+  email   String
+  phone   String?
+  service String?
+  message String?
+  type    String // demo, contact, get_in_touch
+  status  String @default("pending") // pending, contacted, resolved
+
+  userId Int?
+  user   User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([type])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model Category {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  categoryTypes    CategoryType[]
+  services         Service[]
+}
+
+model CategoryType {
+  id         Int      @id @default(autoincrement())
+  name       String
+  categoryId Int
+
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  services         Service[]
+}
+
+model UserService {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  serviceId Int
+  price     Float
+  priority  Priority @default(MEDIUM)
+  status    String   @default("active")
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  service Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, serviceId])
+}
+
+model VpsServer {
+  id             Int          @id @default(autoincrement())
+
+  os             ServerOS
+  availability   Availability
+
+  processorModel String
+  perGbRam       Int          // in GB
+  logicalVCores  Int
+  storage    String
+  clockSpeed     Float        
+  bandwidth      Int          
+  pricePerMonth  Float
+
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+
+
+
+model DedicatedServer {
+  id             String   @id @default(cuid())
+  chip           Chip
+
+  processorModel String
+  physicalCores  Int
+  logicalVCores  Int
+  clockSpeed     String
+
+  ramGb          Int        // RAM (GB) 2999 MHz
+
+  // Drives
+  primaryDrive   String      // For AMD: "1x3.84 TB SSD", For Intel: "PRIMARY DRIVE"
+  secondaryDrive String?     // Optional
+  raidCard       String?     // Optional
+
+  pricePerMonth  Float
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+enum ServiceType {
+  CLOUD
+  SERVER
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+model Purchase {
+  id             Int           @id @default(autoincrement())
+  userId         Int
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  serviceType    ServiceType
+  serviceId      String        // ID of the cloud service or server service
+
+  amount         Float
+  currency       String        @default("INR")
+  paymentMethod  String?       // e.g., "card", "bank_transfer", "upi"
+  paymentStatus  PaymentStatus @default(PENDING)
+  transactionId  String?       // External payment gateway transaction ID
+
+  expiresAt      DateTime?     // Service expiration date
+  planType       PlanType      @default(MONTHLY) // Monthly or Yearly plan
+
+  domain                String? // Domain for the purchase
+  partner               String  @default("htwo") // Partner name
+  acronisFolderLocation String? // Acronis folder location
+
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@index([userId])
+  @@index([serviceType])
+  @@index([paymentStatus])
+}
+
+enum RequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum BillingCycle {
+  MONTHLY
+  QUARTERLY
+  YEARLY
+}
+
+enum PlanType {
+  MONTHLY
+  YEARLY
+}
+
+model ServiceRequest {
+  id                  Int           @id @default(autoincrement())
+  
+  // User Information
+  fullName            String
+  email               String
+  phone               String
+  companyName         String?
+  gstNumber           String?
+  address             String?
+  
+  // Service Details
+  serviceType         ServiceType   @default(CLOUD)
+  servicePlan         String        // Basic, Standard, Premium
+  serverLocation      String        @default("India")
+  billingCycle        BillingCycle  @default(MONTHLY)
+  additionalNotes     String?
+  
+  // Request Status
+  status              RequestStatus @default(PENDING)
+
+  // Admin Response
+  adminNotes          String?
+  approvedBy          Int?
+  approvedAt          DateTime?
+
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  @@index([email])
+  @@index([status])
+  @@index([createdAt])
+}
+

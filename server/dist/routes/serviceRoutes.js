@@ -1,0 +1,18 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const serviceController_1 = require("../controllers/serviceController");
+const vpsServerController_1 = require("../controllers/vpsServerController");
+const dedicatedServerController_1 = require("../controllers/dedicatedServerController");
+const router = (0, express_1.Router)();
+router.get('/services', serviceController_1.getAllServices);
+router.get('/services/name/:name', serviceController_1.getServiceByName);
+router.get('/services/category/:category', serviceController_1.getServicesByCategory);
+router.get('/services/category/:category/type/:type', serviceController_1.getServiceByCategoryAndType);
+router.get('/services/priority/:priority', serviceController_1.getServicesByPriority);
+router.get('/services/category/:category/priority/:priority', serviceController_1.getServicesByCategoryAndPriority);
+router.get('/vps-servers', vpsServerController_1.getVpsServers);
+router.get('/vps-servers/:id', vpsServerController_1.getVpsServerById);
+router.get('/dedicated-servers', dedicatedServerController_1.getDedicatedServers);
+router.get('/dedicated-servers/:id', dedicatedServerController_1.getDedicatedServerById);
+exports.default = router;
